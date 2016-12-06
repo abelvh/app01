@@ -45,10 +45,9 @@ bottom: 10%;
 
 
   </head>
-  <body>
+<BODY>
 <?php
-
-//creamos la sesion
+	//creamos la sesion
 session_start();
 
 //validamos si se ha hecho o no el inicio de sesion correctamente
@@ -59,44 +58,61 @@ if(!isset($_SESSION['usuario']))
   header('Location: login.php'); 
   exit();
 }
-
-mysql_connect('localhost','root','');
-mysql_select_db('pizzeria');
-$email = $_SESSION['usuario'];  
-$result = mysql_query("SELECT nombre FROM clientes WHERE email = '$email'");
-$row=mysql_fetch_array($result);
-if ($email != "administrador@pizzeria.com") {
- ?>
-     <div class="container well" id="formatear">
-       <img src="logo.jpg" alt="Avatar" height="256" width="256" class="img-responsive" id="logo">
-      <div class="row">
-        <div class="col-xs-12">
-
-  <h1>Bienvenido Abel Vilca <? echo utf8_encode($row[0]); ?>!!!</h1>
-  
-  
-  <a href="masa.php" class="btn btn-danger" role="button">Pedir una pizza</a><br><br>
-
-  <a href="logout.php">Cerrar Sesión</a>
-  </div>
- <?php
-} else { ?>
-     <div class="container well" id="formatear">
-       <img src="logo.jpg" alt="Avatar" height="256" width="256" class="img-responsive" id="logo">
-
-  <h3>Bienvenido <? echo $row[0]; ?></h3>
-  <h4>Que deseas hacer??¿¿</h4>
-  <a href="vermasa.php">Ver masas</a><br>
-  <a href="veringre.php">Ver ingredientes</a><br>
-  <a href="verclientes.php">Ver clientes</a><br>
-  <a href="pedidos.php">Ver pedidos</a><br>
-  <a href="logout.php">Cerrar Sesión</a>
-  </div>
- </div>
-        </div>
-<?php
+else {
+	$email = $_SESSION['usuario']; 
+	if ($email != "administrador@pizzeria.com") {
+		header('Location: login.php'); 
+  		exit();
+  	}
 }
-?>
-</BODY>
-</HTML> 
 
+   if (isset($_REQUEST['borrar'])) {
+
+		$nombre = $_REQUEST['nombre'];
+		$conex = mysql_connect("localhost","root","") or die("Problema en la conexion al servidor");
+		mysql_select_db("pizzeria", $conex) or die("Problema en la conexion a la BD");
+		$sSQL="Delete From masas Where descripcion='$nombre'";
+		mysql_query($sSQL);
+		mysql_close($conex);
+?>
+     <div class="container well" id="formatear">
+       <img src="logo.jpg" alt="Avatar" height="256" width="256" class="img-responsive" id="logo">
+<h1>Masa eliminada</h1>
+<a href='borramasa.php'>Eliminar otra masa</a><br>	
+<a href="vermasa.php">Volver</a>
+</div>
+<?php
+} else {
+?>
+     <div class="container well" id="formatear">
+       <img src="logo.jpg" alt="Avatar" height="256" width="256" class="img-responsive" id="logo">
+<h1>Baja de masas</h1><br>
+<?php
+
+echo '<form class="borde" method="post" action="borramasa.php">';
+
+$con = mysql_connect("localhost","root","") or die("Problema en la conexion al servidor");
+mysql_select_db("pizzeria", $con) or die("Problema en la conexion a la BD");
+$SQL="Select descripcion From masas Order By descripcion";
+$result=mysql_query($SQL);
+echo '<p><label>Nombre: </label>';
+echo '<select name="nombre">';
+
+//Mostramos los registros en forma de menú desplegable
+while ($row=mysql_fetch_array($result))
+{echo '<option>'.utf8_encode($row["descripcion"]).'</option>';}
+mysql_free_result($result)
+?>
+
+</select>
+<br><br>
+<input type="submit" name="borrar" value="Eliminar masa" id="ingredientes"><br><br>
+<a href="vermasa.php">Volver</a>
+</form>
+<?php
+	mysql_close($con);
+   }
+?>
+</div>
+</body>
+</html> 
