@@ -3,5 +3,19 @@ os: linux
 files:
   - source: /app
     destination /var/www/html/pizzeria
-
+permissions:
+  - object: /var/www/html/pizzeria
+    pattern: "*"
+    owner: apache
+    group: apache
+    mode: 755
+    type:
+      - directory
+  - object: /var/www/html/bzbackup
+    pattern: "*"
+    owner: apache
+    group: apache
+    mode: 755
+    type:
+      - file
 timeout: 3600
